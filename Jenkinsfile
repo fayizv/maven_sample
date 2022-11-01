@@ -1,27 +1,29 @@
-pipeline {
+pipeline{
     agent any
-
-    stages {
-        stage('Hello') {
-            steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/fayizv/maven_sample']]])
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'ls'
-            }
-        }
-        
-            node {
-      stage('SCM') {
-        git 'https://github.com/foo/bar.git'
-      }
-      stage('SonarQube analysis') {
-        withSonarQubeEnv(credentialsId: 'f225455e-ea59-40fa-8af7-08176e86507a', installationName: 'My SonarQube Server') { // You can override the credential to be used
-          sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
-        }
-      }
+    environment {
+        PATH = "$PATH:/opt/apache-maven-3.6.3/bin"
     }
+    stages{
+       stage('GetCode'){
+            steps{
+                git 'https://github.com/fayizv/maven_sample'
+            }
+         }        
+       stage('Build'){
+            steps{
+                sh 'mvn clean package'
+            }
+         }
+        stage('SonarQube analysis') {
+//    def scannerHome = tool 'SonarScanner 4.0';
+        steps{
+        withSonarQubeEnv('sonarqube-9.2.2') { 
+        // If you have configured more than one global server connection, you can specify its name
+//      sh "${scannerHome}/bin/sonar-scanner"
+        sh "mvn sonar:sonar"
+    }
+        }
+        }
+       
     }
 }
