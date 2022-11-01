@@ -1,14 +1,12 @@
-pipeline {
-    agent any 
-    
-    tools {
-        maven 'MAVEN_HOME'
+pipeline{
+    agent any
+    environment {
+        PATH = "$PATH:/opt/apache-maven-3.6.3/bin"
     }
     stages {
         stage("Build Maven") {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/fayizv/maven_sample']]])
-                sh "mvn clean install"
             }
         }       
        stage('Build'){
